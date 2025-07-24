@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\PageController; // Tambahkan ini
 use App\Http\Controllers\Auth\FirebaseAuthController; // <--- PASTIKAN BARIS INI BENAR
+use App\Http\Middleware\FirebaseAuth;
 
 // Rute untuk halaman Beranda
 Route::get('/', [HomeController::class, 'index'])->name('home');
@@ -39,8 +40,21 @@ Route::middleware(['auth.firebase'])->prefix('admin')->group(function () {
 | Rute Admin yang Dilindungi
 |--------------------------------------------------------------------------
 */
-// Rute untuk halaman admin yang dilindungi
-Route::middleware(['firebase.auth'])->prefix('admin')->group(function () {
-    Route::get('/dashboard', [DashboardController::class, 'index'])->name('admin.dashboard');
-    // Tambahkan rute admin lainnya di sini
+Route::middleware([FirebaseAuth::class])->group(function () {
+    Route::get('/admin/dashboard', function () {
+        $user = session('firebase_user');
+        return view('admin.dashboard', compact('user'));
+    });
+});
+
+
+Route::get('/firebase/config', function () {
+    return response()->json([
+        'apiKey' => env('FIREBASE_API_KEY'),
+        'authDomain' => env('FIREBASE_AUTH_DOMAIN'),
+        'projectId' => env('FIREBASE_PROJECT_ID'),
+        'storageBucket' => env('FIREBASE_STORAGE_BUCKET'),
+        'messagingSenderId' => env('FIREBASE_MESSAGING_SENDER_ID'),
+        'appId' => env('FIREBASE_APP_ID'),
+    ]);
 });

@@ -5,8 +5,8 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Session;
-// Langsung panggil class Factory
 use Kreait\Firebase\Factory;
+use Kreait\Firebase\Exception\FirebaseException;
 
 class FirebaseAuthController extends Controller
 {
@@ -14,32 +14,39 @@ class FirebaseAuthController extends Controller
 
     public function __construct()
     {
-        // Membuat objek Firebase secara manual dari awal.
-        // Ini adalah cara paling aman untuk menghindari konflik.
         $factory = (new Factory)
             ->withServiceAccount(storage_path('app/firebase/service-account.json'));
 
-        // Menyimpan objek Auth ke properti untuk digunakan nanti.
         $this->auth = $factory->createAuth();
     }
 
-    // Fungsi untuk menampilkan halaman login
+    // Menampilkan halaman login
     public function showLogin()
     {
+        // Jika sudah login, redirect langsung ke dashboard
+        if (Session::has('firebase_user')) {
+            return redirect('/admin/dashboard');
+        }
+
         return view('auth.login');
     }
 
-    // Fungsi untuk memverifikasi token dari JavaScript
+    // Verifikasi token dari frontend
     public function verifyToken(Request $request)
     {
         $request->validate(['idToken' => 'required|string']);
 
         try {
-            // Memanggil METHOD verifyIdToken() pada objek $this->auth
+            // Verifikasi token dari frontend
             $verifiedIdToken = $this->auth->verifyIdToken($request->idToken);
+
+            // Ambil UID
             $uid = $verifiedIdToken->claims()->get('sub');
+
+            // Ambil data user dari Firebase
             $firebaseUser = $this->auth->getUser($uid);
 
+            // Simpan user ke session Laravel
             Session::put('firebase_user', [
                 'uid' => $firebaseUser->uid,
                 'email' => $firebaseUser->email,
@@ -53,7 +60,7 @@ class FirebaseAuthController extends Controller
         }
     }
 
-    // Fungsi untuk logout
+    // Logout
     public function logout(Request $request)
     {
         Session::flush();
