@@ -1,97 +1,72 @@
-// Import fungsi yang diperlukan dari Firebase SDK
+// Langkah 1: Impor semua fungsi yang kita butuhkan dari Firebase SDK
+// INI BAGIAN YANG HILANG DAN MENYEBABKAN ERROR
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import {
-    getAuth,
-    signInWithEmailAndPassword,
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
-// !!! PENTING: Pastikan konfigurasi ini sudah benar-benar sesuai dengan proyek Anda di Firebase Console
+// Langkah 2: Konfigurasi Firebase Anda (ini sudah benar dari file Anda)
 const firebaseConfig = {
     apiKey: "AIzaSyBqazsCMdvvkRFoxVedYRUKXoqHBOe-Gw8",
     authDomain: "slorok-92e67.firebaseapp.com",
     projectId: "slorok-92e67",
     storageBucket: "slorok-92e67.firebasestorage.app",
     messagingSenderId: "638662002855",
-    appId: "1:638662002855:web:72711a442c60d2c5897382",
+    appId: "1:638662002855:web:72711a442c60d2c5897382"
 };
 
-// Inisialisasi Firebase
+// Langkah 3: Inisialisasi Firebase
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
+console.log("Firebase berhasil diinisialisasi."); // DEBUG
 
-const loginForm = document.getElementById("login-form");
-const errorMessage = document.getElementById("error-message");
+// Langkah 4: Logika untuk form login
+const loginForm = document.getElementById('login-form');
 
-loginForm.addEventListener("submit", async (e) => {
-    e.preventDefault();
-    console.log("--- Memulai Proses Login ---");
+if (loginForm) {
+    loginForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        console.log("Tombol login ditekan."); // DEBUG
 
-    const email = document.getElementById("email").value;
-    const password = document.getElementById("password").value;
-    errorMessage.textContent = "";
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+        const errorMessage = document.getElementById('error-message');
+        errorMessage.textContent = '';
 
-    try {
-        console.log(`Mencoba login ke Firebase dengan email: ${email}`);
+        // Memanggil fungsi signInWithEmailAndPassword yang sudah kita impor
+        signInWithEmailAndPassword(auth, email, password)
+            .then((userCredential) => {
+                console.log("Login ke Firebase BERHASIL."); // DEBUG
+                return userCredential.user.getIdToken();
+            })
+            .then((idToken) => {
+                console.log("Mengirim token ke Laravel..."); // DEBUG
 
-        // 1. Login ke Firebase
-        const userCredential = await signInWithEmailAndPassword(
-            auth,
-            email,
-            password
-        );
-        const user = userCredential.user;
-        console.log("✅ Firebase Login Berhasil!", user);
-
-        // 2. Dapatkan ID Token
-        console.log("Mengambil ID Token...");
-        const idToken = await user.getIdToken();
-        console.log("✅ ID Token berhasil didapatkan.");
-
-        // 3. Kirim Token ke Laravel untuk verifikasi
-        console.log("Mengirim token ke server Laravel untuk verifikasi...");
-        const response = await fetch("/firebase/verify-token", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "X-CSRF-TOKEN": document
-                    .querySelector('meta[name="csrf-token"]')
-                    .getAttribute("content"),
-            },
-            body: JSON.stringify({ idToken: idToken }),
-        });
-
-        if (!response.ok) {
-            console.error("Respon dari server tidak OK.", response);
-            throw new Error(
-                "Verifikasi di server gagal. Status: " + response.status
-            );
-        }
-
-        const result = await response.json();
-        console.log("✅ Verifikasi di server berhasil!", result);
-
-        // 4. Jika sukses, arahkan ke dashboard
-        if (result.status === "success") {
-            console.log("Mengarahkan ke dashboard...");
-            window.location.href = "/admin/dashboard";
-        }
-    } catch (error) {
-        console.error("❌ Login Gagal:", error);
-
-        // Menampilkan pesan error yang lebih spesifik
-        if (error.code) {
-            switch (error.code) {
-                case "auth/invalid-credential":
-                case "auth/user-not-found":
-                case "auth/wrong-password":
-                    errorMessage.textContent =
-                        "Email atau password yang Anda masukkan salah.";
-                    break;
-                default:
-                    errorMessage.textContent = "Terjadi kesalahan saat login.";
-            }
-        } else {
-            errorMessage.textContent = error.message;
-        }
-    }
-});
+                // Kirim token ke backend Laravel
+                fetch('/firebase/verify-token', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                    },
+                    body: JSON.stringify({ idToken: idToken })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    console.log("Respon dari Laravel:", data); // DEBUG
+                    if (data.status === 'success') {
+                        console.log("Verifikasi token berhasil, mengarahkan ke dashboard...");
+                        window.location.href = '/admin/dashboard';
+                    } else {
+                        errorMessage.textContent = data.message || 'Gagal memverifikasi token.';
+                    }
+                })
+                .catch(error => {
+                    console.error("Error saat fetch ke backend:", error); // DEBUG
+                    errorMessage.textContent = 'Terjadi kesalahan saat menghubungi server.';
+                });
+            })
+            .catch((error) => {
+                console.error("Login ke Firebase GAGAL:", error.message); // DEBUG
+                errorMessage.textContent = 'Email atau password salah.';
+            });
+    });
+}

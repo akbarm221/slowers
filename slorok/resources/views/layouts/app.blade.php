@@ -60,7 +60,7 @@
     @yield('content')
   </main>
 
-  <x-layout.footer :contact="$contact" />
+  <x-layout.footer  />
 
   <script src="{{ asset('assets/js/common.js') }}"></script>
   @stack('scripts') {{-- Tempat untuk script khusus per halaman --}}

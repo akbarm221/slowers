@@ -24,20 +24,23 @@ Route::get('/team-profile', [PageController::class, 'hiddenPage'])->name('hidden
 Route::get('/data/infografis/pendidikan', [InfographicController::class, 'getEducationData'])->name('data.infographics.education');
 Route::get('/data/infografis/pendidikan', [InfographicController::class, 'getEducationData']);
 
-// Rute untuk menampilkan halaman login admin
-Route::get('/admin/login', [FirebaseAuthController::class, 'showLoginForm'])->name('admin.login');
+// Rute Autentikasi
+Route::get('/login', [FirebaseAuthController::class, 'showLogin'])->name('login');
+Route::post('/firebase/verify-token', [FirebaseAuthController::class, 'verifyToken']);
+Route::get('/logout', [FirebaseAuthController::class, 'logout'])->name('logout');
 
-// Rute yang akan dipanggil oleh JavaScript untuk verifikasi token
-Route::post('/firebase/verify-token', [FirebaseAuthController::class, 'verifyToken'])->name('firebase.verify_token');
-
-Route::post('/admin/logout', [FirebaseAuthController::class, 'logout'])->name('admin.logout');
+// Rute Dashboard yang Dilindungi
+Route::middleware(['auth.firebase'])->prefix('admin')->group(function () {
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('admin.dashboard');
+});
 
 
 /* |--------------------------------------------------------------------------
 | Rute Admin yang Dilindungi
 |--------------------------------------------------------------------------
 */
-Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
-    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
-    // Nanti semua rute admin lainnya (misal: untuk edit data) akan ditaruh di sini
+// Rute untuk halaman admin yang dilindungi
+Route::middleware(['firebase.auth'])->prefix('admin')->group(function () {
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('admin.dashboard');
+    // Tambahkan rute admin lainnya di sini
 });

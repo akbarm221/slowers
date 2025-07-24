@@ -1,77 +1,62 @@
 <?php
 
-namespace App\Http\Controllers\Auth; // <--- PASTIKAN BARIS INI BENAR
-
+namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Session;
+// Langsung panggil class Factory
 use Kreait\Firebase\Factory;
-use Illuminate\Support\Facades\Auth;
-use App\Models\User; // Pastikan Anda memiliki model User
 
 class FirebaseAuthController extends Controller
 {
-    public function showLoginForm()
-    {
-        // Data sementara untuk layout
-        $viewData = [
-            'site' => ['title' => 'Desa Slorok'],
-            'contact' => [
-                'address' => 'Alamat desa akan ditampilkan di sini...',
-                'phone' => '(000) 1234-5678',
-                'email' => 'info@slorok.desa.id',
-                'workingHours' => [
-                    'weekdays' => 'Senin - Jumat: 08:00 - 16:00',
-                    'saturday' => 'Sabtu: 08:00 - 12:00',
-                    'sunday' => 'Minggu: Tutup',
-                ],
-                'socialMedia' => []
-            ],
-        ];
+    protected $auth;
 
-        // Kirim data ke view login
-        return view('auth.login', $viewData);
+    public function __construct()
+    {
+        // Membuat objek Firebase secara manual dari awal.
+        // Ini adalah cara paling aman untuk menghindari konflik.
+        $factory = (new Factory)
+            ->withServiceAccount(storage_path('app/firebase/service-account.json'));
+
+        // Menyimpan objek Auth ke properti untuk digunakan nanti.
+        $this->auth = $factory->createAuth();
     }
 
+    // Fungsi untuk menampilkan halaman login
+    public function showLogin()
+    {
+        return view('auth.login');
+    }
+
+    // Fungsi untuk memverifikasi token dari JavaScript
     public function verifyToken(Request $request)
     {
-        $idToken = $request->input('idToken');
-
-        $firebase = (new Factory)->withServiceAccount(config('firebase.credentials.file'));
-        $auth = $firebase->createAuth();
+        $request->validate(['idToken' => 'required|string']);
 
         try {
-            $verifiedIdToken = $auth->verifyIdToken($idToken);
-        } catch (\Exception $e) {
-            return response()->json(['message' => 'Token tidak valid.'], 401);
-        }
+            // Memanggil METHOD verifyIdToken() pada objek $this->auth
+            $verifiedIdToken = $this->auth->verifyIdToken($request->idToken);
+            $uid = $verifiedIdToken->claims()->get('sub');
+            $firebaseUser = $this->auth->getUser($uid);
 
-        $uid = $verifiedIdToken->claims()->get('sub');
-        $firebaseUser = $auth->getUser($uid);
-
-        // Cari user di database Anda, atau buat baru jika belum ada
-        $user = User::firstOrCreate(
-            ['firebase_uid' => $uid],
-            [
-                'name' => $firebaseUser->displayName ?? 'Admin User',
+            Session::put('firebase_user', [
+                'uid' => $firebaseUser->uid,
                 'email' => $firebaseUser->email,
-                'password' => bcrypt(uniqid()), // Beri password acak karena tidak akan dipakai
-            ]
-        );
+                'name' => $firebaseUser->displayName ?? 'Admin',
+            ]);
 
-        // Login user ke dalam sesi Laravel
-        Auth::login($user);
+            return response()->json(['status' => 'success']);
 
-        return response()->json(['status' => 'success', 'message' => 'Login berhasil!']);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'message' => $e->getMessage()], 401);
+        }
     }
 
+    // Fungsi untuk logout
     public function logout(Request $request)
     {
-        Auth::logout();
-
-        $request->session()->invalidate();
-        $request->session()->regenerateToken();
-
-        return redirect('/');
+        Session::flush();
+        return redirect('/login');
     }
 }
