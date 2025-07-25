@@ -40,11 +40,46 @@ Route::middleware(['auth.firebase'])->prefix('admin')->group(function () {
 | Rute Admin yang Dilindungi
 |--------------------------------------------------------------------------
 */
-Route::middleware([FirebaseAuth::class])->group(function () {
-    Route::get('/admin/dashboard', function () {
-        $user = session('firebase_user');
-        return view('admin.dashboard', compact('user'));
-    });
+Route::middleware([FirebaseAuth::class])->prefix('admin')->name('admin.')->group(function () {
+
+    // URL: /admin/dashboard
+    // Nama: admin.dashboard
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+
+    // URL: /admin/infografis
+    // Nama: admin.infografis.index
+    Route::get('/infografis', function () {
+        return view('admin.infografis.index');
+    })->name('infografis.index');
+
+    // Rute untuk menampilkan form edit jumlah penduduk
+    Route::get('/infografis/penduduk/edit', function () {
+        // Mengarahkan ke file baru yang lebih spesifik
+        return view('admin.infografis.penduduk.edit_jumlah_penduduk');
+    })->name('infografis.penduduk.edit');
+
+    // Rute BARU untuk menampilkan form edit data pekerjaan
+    Route::get('/infografis/pekerjaan/edit', function () {
+        return view('admin.infografis.pekerjaan.edit_pekerjaan');
+    })->name('infografis.pekerjaan.edit');
+
+    Route::get('/infografis/agama/edit', function () {
+        return view('admin.infografis.agama.edit_agama');
+    })->name('infografis.agama.edit');
+
+    Route::get('/infografis/pendidikan/edit', function () {
+        return view('admin.infografis.pendidikan.edit_pendidikan');
+    })->name('infografis.pendidikan.edit');
+// --- TAMBAHKAN RUTE DI BAWAH INI ---
+    Route::get('/infografis/apbd/create', function() {
+        return view('admin.infografis.apbd.create_apbd');
+    })->name('infografis.apbd.create');
+    
+    // Rute untuk menampilkan form UPDATE data APBD
+    Route::get('/infografis/apbd/{tahun}/edit', function($tahun) {
+        // Arahkan ke view form 'edit' Anda, kirim data tahun
+        // return view('admin.infografis.apbd.edit_apbd', ['tahun' => $tahun]);
+    })->name('infografis.apbd.edit');
 });
 
 

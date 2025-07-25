@@ -25,7 +25,7 @@ class FirebaseAuthController extends Controller
     {
         // Jika sudah login, redirect langsung ke dashboard
         if (Session::has('firebase_user')) {
-            return redirect('/admin/dashboard');
+             return redirect()->route('admin.infografis.index');
         }
 
         return view('auth.login');

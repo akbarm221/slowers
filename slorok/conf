@@ -1,8 +1,0 @@
-const firebaseConfig = {
-  apiKey: "AIzaSyBqazsCMdvvkRFoxVedYRUKXoqHBOe-Gw8",
-  authDomain: "slorok-92e67.firebaseapp.com",
-  projectId: "slorok-92e67",
-  storageBucket: "slorok-92e67.firebasestorage.app",
-  messagingSenderId: "638662002855",
-  appId: "1:638662002855:web:72711a442c60d2c5897382"
-};
