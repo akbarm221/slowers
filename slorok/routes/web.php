@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\BeritaController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\PageController; // Tambahkan ini
@@ -80,6 +81,8 @@ Route::middleware([FirebaseAuth::class])->prefix('admin')->name('admin.')->group
         // Arahkan ke view form 'edit' Anda, kirim data tahun
         // return view('admin.infografis.apbd.edit_apbd', ['tahun' => $tahun]);
     })->name('infografis.apbd.edit');
+
+     Route::resource('berita', BeritaController::class);
 });
 
 
@@ -93,3 +96,13 @@ Route::get('/firebase/config', function () {
         'appId' => env('FIREBASE_APP_ID'),
     ]);
 });
+
+
+    Route::get('/supabase/config', function () {
+        return response()->json([
+            'url' => env('SUPABASE_URL'),
+            'key' => env('SUPABASE_KEY'),
+        ]);
+    });
+
+    

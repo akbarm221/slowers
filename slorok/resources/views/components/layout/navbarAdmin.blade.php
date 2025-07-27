@@ -7,21 +7,27 @@
             </div>
 
             <nav class="hidden md:flex md:space-x-4">
-                <a href="{{ route('admin.dashboard') }}" 
-                   class="px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 flex items-center
+                <a href="{{ route('admin.dashboard') }}"
+                    class="px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 flex items-center
                    {{ request()->routeIs('admin.dashboard') ? 'bg-primary-100 text-primary-700 dark:bg-primary-900/30 dark:text-primary-300' : 'text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700' }}">
                     <i class="fas fa-chart-bar mr-2"></i>
                     Infografis
                 </a>
-                {{-- Nanti 4 menu lainnya bisa ditambahkan di sini --}}
-                {{-- <a href="#" class="px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700 flex items-center">Menu 2</a> --}}
+                {{-- PERUBAHAN DI SINI --}}
+                <a href="{{ route('admin.berita.index') }}"
+                    class="px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 flex items-center
+                   {{ request()->routeIs('admin.berita.*') ? 'bg-primary-100 text-primary-700 dark:bg-primary-900/30 dark:text-primary-300' : 'text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700' }}">
+                    <i class="fas fa-images mr-2"></i>
+                    Galeri Kegiatan
+                </a>
             </nav>
 
             <div class="flex items-center">
                 <div id="darkModeToggleContainer" class="mr-2">
                     {{-- Placeholder ini akan diisi oleh common.js --}}
                 </div>
-                <button id="mobile-menu-button" class="md:hidden p-2 rounded-md text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
+                <button id="mobile-menu-button"
+                    class="md:hidden p-2 rounded-md text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
                     <i class="fas fa-bars text-xl"></i>
                 </button>
             </div>
@@ -30,11 +36,16 @@
 
     <div id="mobile-menu" class="md:hidden hidden">
         <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
-            <a href="{{ route('admin.dashboard') }}" class="block px-3 py-2 rounded-md text-base font-medium
+            <a href="{{ route('admin.dashboard') }}"
+                class="block px-3 py-2 rounded-md text-base font-medium
                {{ request()->routeIs('admin.dashboard') ? 'bg-primary-100 text-primary-700 dark:bg-primary-900/30' : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700' }}">
-               Infografis
+                Infografis
             </a>
-            {{-- Nanti 4 menu mobile lainnya bisa ditambahkan di sini --}}
+            {{-- PERUBAHAN DI SINI --}}
+            <a href="{{ route('admin.berita.index') }}"
+                class="block px-3 py-2 rounded-md text-base font-medium text-gray-600 dark:text-gray-300">
+                Galeri Kegiatan
+            </a>
         </div>
     </div>
 </header>
