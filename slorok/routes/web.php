@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\BeritaController;
+use App\Http\Controllers\Admin\KegiatanController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\PageController; // Tambahkan ini
@@ -71,18 +72,27 @@ Route::middleware([FirebaseAuth::class])->prefix('admin')->name('admin.')->group
     Route::get('/infografis/pendidikan/edit', function () {
         return view('admin.infografis.pendidikan.edit_pendidikan');
     })->name('infografis.pendidikan.edit');
-// --- TAMBAHKAN RUTE DI BAWAH INI ---
-    Route::get('/infografis/apbd/create', function() {
+    // --- TAMBAHKAN RUTE DI BAWAH INI ---
+    Route::get('/infografis/apbd/create', function () {
         return view('admin.infografis.apbd.create_apbd');
     })->name('infografis.apbd.create');
-    
+
     // Rute untuk menampilkan form UPDATE data APBD
-    Route::get('/infografis/apbd/{tahun}/edit', function($tahun) {
+    Route::get('/infografis/apbd/{tahun}/edit', function ($tahun) {
         // Arahkan ke view form 'edit' Anda, kirim data tahun
         // return view('admin.infografis.apbd.edit_apbd', ['tahun' => $tahun]);
     })->name('infografis.apbd.edit');
 
-     Route::resource('berita', BeritaController::class);
+    Route::resource('berita', BeritaController
+        ::class);
+
+    // Rute untuk CRUD Kegiatan
+    Route::get('kegiatan', [KegiatanController::class, 'index'])->name('kegiatan.index');
+    Route::get('kegiatan/create', [KegiatanController::class, 'create'])->name('kegiatan.create');
+    Route::post('kegiatan', [KegiatanController::class, 'store'])->name('kegiatan.store');
+    Route::get('kegiatan/{kegiatan}/edit', [KegiatanController::class, 'edit'])->name('kegiatan.edit');
+    Route::put('kegiatan/{kegiatan}', [KegiatanController::class, 'update'])->name('kegiatan.update');
+    Route::delete('kegiatan/{kegiatan}', [KegiatanController::class, 'destroy'])->name('kegiatan.destroy');
 });
 
 
@@ -98,11 +108,9 @@ Route::get('/firebase/config', function () {
 });
 
 
-    Route::get('/supabase/config', function () {
-        return response()->json([
-            'url' => env('SUPABASE_URL'),
-            'key' => env('SUPABASE_KEY'),
-        ]);
-    });
 
-    
+
+
+Route::get('/dbtest', function () {
+    return DB::select("SELECT @@basedir as path")[0]->path;
+});

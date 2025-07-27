@@ -7,14 +7,14 @@
             </div>
 
             <nav class="hidden md:flex md:space-x-4">
-                <a href="{{ route('admin.dashboard') }}"
+                <a href="{{ route('admin.infografis.index') }}"
                     class="px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 flex items-center
                    {{ request()->routeIs('admin.dashboard') ? 'bg-primary-100 text-primary-700 dark:bg-primary-900/30 dark:text-primary-300' : 'text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700' }}">
                     <i class="fas fa-chart-bar mr-2"></i>
                     Infografis
                 </a>
                 {{-- PERUBAHAN DI SINI --}}
-                <a href="{{ route('admin.berita.index') }}"
+                <a href="{{ route('admin.kegiatan.index') }}"
                     class="px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 flex items-center
                    {{ request()->routeIs('admin.berita.*') ? 'bg-primary-100 text-primary-700 dark:bg-primary-900/30 dark:text-primary-300' : 'text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700' }}">
                     <i class="fas fa-images mr-2"></i>
@@ -42,7 +42,7 @@
                 Infografis
             </a>
             {{-- PERUBAHAN DI SINI --}}
-            <a href="{{ route('admin.berita.index') }}"
+            <a href="{{ route('admin.kegiatan.index') }}"
                 class="block px-3 py-2 rounded-md text-base font-medium text-gray-600 dark:text-gray-300">
                 Galeri Kegiatan
             </a>
